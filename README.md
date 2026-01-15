@@ -2,7 +2,7 @@
 
 [![HACS Badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/release/exergyheat/ha-integration-stealthminer.svg)](https://github.com/exergyheat/ha-integration-stealthminer/releases)
-[![License](https://img.shields.io/github/license/exergyheat/ha-integration-stealthminer.svg)]
+[![License](https://img.shields.io/github/license/exergyheat/ha-integration-stealthminer.svg)](LICENSE)
 
 Home Assistant custom integration for monitoring and controlling Bitcoin miners running LuxOS firmware.
 
