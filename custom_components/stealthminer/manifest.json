@@ -4,10 +4,10 @@
   "codeowners": ["@tronsington"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/Tronsington/ha-integration-stealthminer",
+  "documentation": "https://github.com/exergyheat/ha-integration-stealthminer",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Tronsington/ha-integration-stealthminer/issues",
+  "issue_tracker": "https://github.com/exergyheat/ha-integration-stealthminer/issues",
   "requirements": [],
   "version": "1.0.0"
 }
