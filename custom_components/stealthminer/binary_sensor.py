@@ -1,4 +1,4 @@
-"""Binary sensor platform for Exergy - LuxOS Miner."""
+"""Binary sensor platform for Exergy - Stealthminer."""
 from __future__ import annotations
 
 import logging
@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import LuxOSDataUpdateCoordinator
+from .coordinator import StealthminerDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,14 +35,14 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up LuxOS binary sensors from a config entry."""
-    coordinator: LuxOSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Stealthminer binary sensors from a config entry."""
+    coordinator: StealthminerDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
     for sensor_type in BINARY_SENSOR_TYPES:
         key, name, device_class, icon, value_path, value_fn, on_value, entity_category = sensor_type
         entities.append(
-            LuxOSBinarySensor(
+            StealthminerBinarySensor(
                 coordinator=coordinator,
                 key=key,
                 name=name,
@@ -58,14 +58,14 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class LuxOSBinarySensor(CoordinatorEntity[LuxOSDataUpdateCoordinator], BinarySensorEntity):
-    """Representation of a LuxOS binary sensor."""
+class StealthminerBinarySensor(CoordinatorEntity[StealthminerDataUpdateCoordinator], BinarySensorEntity):
+    """Representation of a Stealthminer binary sensor."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: LuxOSDataUpdateCoordinator,
+        coordinator: StealthminerDataUpdateCoordinator,
         key: str,
         name: str,
         device_class: BinarySensorDeviceClass | None,
@@ -81,7 +81,7 @@ class LuxOSBinarySensor(CoordinatorEntity[LuxOSDataUpdateCoordinator], BinarySen
         self._value_path = value_path
         self._value_fn = value_fn
         self._on_value = on_value
-        
+
         self._attr_name = name
         self._attr_device_class = device_class
         self._attr_icon = icon

@@ -1,4 +1,4 @@
-"""Select platform for LuxOS Miner."""
+"""Select platform for Stealthminer."""
 from __future__ import annotations
 
 import logging
@@ -10,9 +10,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import LuxOSAPIError
+from .api import StealthminerAPIError
 from .const import DOMAIN
-from .coordinator import LuxOSDataUpdateCoordinator
+from .coordinator import StealthminerDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,24 +22,24 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up LuxOS select entities from a config entry."""
-    coordinator: LuxOSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Stealthminer select entities from a config entry."""
+    coordinator: StealthminerDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
-        LuxOSProfileSelect(coordinator),
+        StealthminerProfileSelect(coordinator),
     ]
 
     async_add_entities(entities)
 
 
-class LuxOSProfileSelect(CoordinatorEntity[LuxOSDataUpdateCoordinator], SelectEntity):
+class StealthminerProfileSelect(CoordinatorEntity[StealthminerDataUpdateCoordinator], SelectEntity):
     """Select entity for choosing mining profile."""
 
     _attr_has_entity_name = True
     _attr_name = "Profile"
     _attr_icon = "mdi:tune"
 
-    def __init__(self, coordinator: LuxOSDataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: StealthminerDataUpdateCoordinator) -> None:
         """Initialize the select entity."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.api.host}_{coordinator.api.port}_profile_select"
@@ -69,7 +69,7 @@ class LuxOSProfileSelect(CoordinatorEntity[LuxOSDataUpdateCoordinator], SelectEn
             await self.coordinator.api.set_profile(option)
             _LOGGER.info("Profile changed to %s", option)
             await self.coordinator.async_request_refresh()
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.error("Error setting profile to %s: %s", option, err)
 
     @property

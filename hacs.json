@@ -1,8 +1,5 @@
 {
-  "name": "LuxOS Miner",
+  "name": "Exergy - Stealthminer",
   "homeassistant": "2024.1.0",
-  "render_readme": true,
-  "zip_release": true,
-  "filename": "luxos.zip",
-  "content_in_root": false
+  "render_readme": true
 }

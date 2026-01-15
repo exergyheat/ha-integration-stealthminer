@@ -1,9 +1,9 @@
-"""Constants for the Exergy - LuxOS Miner integration."""
+"""Constants for the Exergy - Stealthminer integration."""
 from __future__ import annotations
 
 from typing import Final
 
-DOMAIN: Final = "luxos"
+DOMAIN: Final = "stealthminer"
 
 # Configuration
 CONF_HOST: Final = "host"

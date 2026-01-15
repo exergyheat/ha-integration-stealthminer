@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for LuxOS."""
+"""DataUpdateCoordinator for Stealthminer."""
 from __future__ import annotations
 
 from datetime import timedelta
@@ -7,27 +7,26 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
 
-from .api import LuxOSAPI, LuxOSAPIError, LuxOSConnectionError
+from .api import StealthminerAPI, StealthminerAPIError, StealthminerConnectionError
 from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Class to manage fetching LuxOS data."""
+class StealthminerDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Class to manage fetching Stealthminer data."""
 
     config_entry: ConfigEntry
 
     def __init__(
         self,
         hass: HomeAssistant,
-        api: LuxOSAPI,
+        api: StealthminerAPI,
         scan_interval: int = DEFAULT_SCAN_INTERVAL,
     ) -> None:
         """Initialize the coordinator."""
@@ -46,29 +45,29 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return self._device_info
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch data from the LuxOS API."""
+        """Fetch data from the Stealthminer API."""
         try:
             data = await self.api.get_all_data()
-            
+
             # Fetch limits separately (less frequent, but needed for UI)
             try:
                 data["limits"] = await self.api.get_limits()
-            except LuxOSAPIError:
+            except StealthminerAPIError:
                 data["limits"] = {}
-            
+
             # Update device info
             self._update_device_info(data)
-            
+
             # Add computed values
             data = self._add_computed_values(data)
-            
+
             return data
 
-        except LuxOSConnectionError as err:
+        except StealthminerConnectionError as err:
             # Return offline state instead of failing completely
             _LOGGER.warning("Connection error: %s", err)
             return {"online": False}
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
     def _update_device_info(self, data: dict[str, Any]) -> None:
@@ -78,7 +77,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         devdetails = data.get("devdetails", [{}])
         devdetail = devdetails[0] if devdetails else {}
 
-        model = version.get("Type", config.get("Model", "LuxOS Miner"))
+        model = version.get("Type", config.get("Model", "Stealthminer"))
         hostname = config.get("Hostname", self.api.host)
         serial = devdetail.get("SerialNumber", config.get("SerialNumber", ""))
         sw_version = version.get("LUXminer", "")
@@ -91,7 +90,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "sw_version": sw_version,
             "configuration_url": f"http://{self.api.host}",
         }
-        
+
         if serial:
             self._device_info["serial_number"] = serial
 
@@ -109,7 +108,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         watts = power.get("Watts", 0)
         hashrate_ghs = summary.get("GHS 5s", 0)
         hashrate_ths = hashrate_ghs / 1000 if hashrate_ghs else 0
-        
+
         if hashrate_ths > 0 and watts > 0:
             data["efficiency"] = round(watts / hashrate_ths, 2)
         else:
@@ -119,7 +118,14 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if temps:
             all_temps = []
             for temp in temps:
-                for key in ["TopLeft", "TopRight", "BottomLeft", "BottomRight", "Board", "Chip"]:
+                for key in [
+                    "TopLeft",
+                    "TopRight",
+                    "BottomLeft",
+                    "BottomRight",
+                    "Board",
+                    "Chip",
+                ]:
                     if key in temp and temp[key] is not None:
                         all_temps.append(temp[key])
             data["temp_board_max"] = max(all_temps) if all_temps else None
@@ -142,7 +148,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if pool.get("Status") == "Alive" and pool.get("Stratum Active"):
                 active_pool = pool
                 break
-        
+
         if active_pool is None and pools:
             # Fall back to first pool
             active_pool = pools[0]
@@ -170,7 +176,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         keys = path.split(".")
         value = self.data
-        
+
         for key in keys:
             if isinstance(value, dict):
                 value = value.get(key)
@@ -179,7 +185,7 @@ class LuxOSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 value = value[0].get(key) if isinstance(value[0], dict) else None
             else:
                 return None
-            
+
             if value is None:
                 return None
 

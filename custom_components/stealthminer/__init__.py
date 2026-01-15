@@ -1,4 +1,4 @@
-"""The Exergy - LuxOS Miner integration."""
+"""The Exergy - Stealthminer integration."""
 from __future__ import annotations
 
 import logging
@@ -8,7 +8,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LuxOSAPI
+from .api import StealthminerAPI
 from .const import (
     DOMAIN,
     PLATFORMS,
@@ -16,21 +16,21 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     CONF_SCAN_INTERVAL,
 )
-from .coordinator import LuxOSDataUpdateCoordinator
+from .coordinator import StealthminerDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Exergy - LuxOS Miner from a config entry."""
+    """Set up Exergy - Stealthminer from a config entry."""
     host = entry.data[CONF_HOST]
     port = entry.data.get(CONF_PORT, DEFAULT_PORT)
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
     session = async_get_clientsession(hass)
-    api = LuxOSAPI(host=host, port=port, session=session)
+    api = StealthminerAPI(host=host, port=port, session=session)
 
-    coordinator = LuxOSDataUpdateCoordinator(
+    coordinator = StealthminerDataUpdateCoordinator(
         hass=hass,
         api=api,
         scan_interval=scan_interval,
@@ -55,10 +55,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    
+
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
-    
+
     return unload_ok
 
 

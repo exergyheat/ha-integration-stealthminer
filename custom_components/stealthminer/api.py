@@ -1,8 +1,7 @@
-"""LuxOS API Client."""
+"""Stealthminer API Client."""
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from typing import Any
 
@@ -38,26 +37,20 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class LuxOSAPIError(Exception):
-    """LuxOS API Error."""
-
-    pass
+class StealthminerAPIError(Exception):
+    """Stealthminer API Error."""
 
 
-class LuxOSConnectionError(LuxOSAPIError):
-    """LuxOS Connection Error."""
-
-    pass
+class StealthminerConnectionError(StealthminerAPIError):
+    """Stealthminer Connection Error."""
 
 
-class LuxOSSessionError(LuxOSAPIError):
-    """LuxOS Session Error."""
-
-    pass
+class StealthminerSessionError(StealthminerAPIError):
+    """Stealthminer Session Error."""
 
 
-class LuxOSAPI:
-    """LuxOS API Client using HTTP API."""
+class StealthminerAPI:
+    """Stealthminer API Client using HTTP API."""
 
     def __init__(
         self,
@@ -66,7 +59,7 @@ class LuxOSAPI:
         timeout: int = DEFAULT_TIMEOUT,
         session: aiohttp.ClientSession | None = None,
     ) -> None:
-        """Initialize the LuxOS API client."""
+        """Initialize the Stealthminer API client."""
         self._host = host
         self._port = port
         self._timeout = timeout
@@ -89,7 +82,7 @@ class LuxOSAPI:
         command: str,
         parameter: str | None = None,
     ) -> dict[str, Any]:
-        """Make a request to the LuxOS API."""
+        """Make a request to the Stealthminer API."""
         payload: dict[str, str] = {"command": command}
         if parameter:
             payload["parameter"] = parameter
@@ -121,16 +114,20 @@ class LuxOSAPI:
             if "STATUS" in data and data["STATUS"]:
                 status = data["STATUS"][0]
                 if status.get("STATUS") == "E":
-                    raise LuxOSAPIError(status.get("Msg", "Unknown API error"))
+                    raise StealthminerAPIError(status.get("Msg", "Unknown API error"))
 
             return data
 
         except aiohttp.ClientConnectorError as err:
-            raise LuxOSConnectionError(f"Cannot connect to {self._host}:{self._port}") from err
+            raise StealthminerConnectionError(
+                f"Cannot connect to {self._host}:{self._port}"
+            ) from err
         except asyncio.TimeoutError as err:
-            raise LuxOSConnectionError(f"Timeout connecting to {self._host}:{self._port}") from err
+            raise StealthminerConnectionError(
+                f"Timeout connecting to {self._host}:{self._port}"
+            ) from err
         except aiohttp.ClientError as err:
-            raise LuxOSAPIError(f"API request failed: {err}") from err
+            raise StealthminerAPIError(f"API request failed: {err}") from err
 
     async def test_connection(self) -> dict[str, Any]:
         """Test the connection to the miner."""
@@ -249,7 +246,11 @@ class LuxOSAPI:
         for key, result in zip(keys, results):
             if isinstance(result, Exception):
                 _LOGGER.warning("Error fetching %s: %s", key, result)
-                data[key] = {} if key not in ("temps", "pools", "profiles", "devs", "devdetails") else []
+                data[key] = (
+                    {}
+                    if key not in ("temps", "pools", "profiles", "devs", "devdetails")
+                    else []
+                )
             else:
                 data[key] = result
 
@@ -262,15 +263,15 @@ class LuxOSAPI:
         current = await self.get_session()
         if current:
             _LOGGER.warning("Session already exists: %s", current)
-            raise LuxOSSessionError("Another session is active")
+            raise StealthminerSessionError("Another session is active")
 
         data = await self._request(CMD_LOGON)
         sessions = data.get("SESSION", [{}])
         session_id = sessions[0].get("SessionID", "") if sessions else ""
-        
+
         if not session_id:
-            raise LuxOSSessionError("Failed to create session")
-        
+            raise StealthminerSessionError("Failed to create session")
+
         self._session_id = session_id
         return session_id
 
@@ -278,10 +279,10 @@ class LuxOSAPI:
         """Close the current session."""
         if not self._session_id:
             return
-        
+
         try:
             await self._request(CMD_LOGOFF, self._session_id)
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.warning("Error closing session: %s", err)
         finally:
             self._session_id = None
@@ -328,7 +329,7 @@ class LuxOSAPI:
 
     async def set_power_target(self, power: int) -> dict[str, Any]:
         """Set the power target in watts.
-        
+
         When using power targeting, the miner's ATM automatically finds
         the best voltage and frequency combination within the desired power limit.
         """

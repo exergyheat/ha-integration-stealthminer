@@ -1,4 +1,4 @@
-"""Config flow for Exergy - LuxOS Miner integration."""
+"""Config flow for Exergy - Stealthminer integration."""
 from __future__ import annotations
 
 import logging
@@ -8,11 +8,11 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LuxOSAPI, LuxOSAPIError, LuxOSConnectionError
+from .api import StealthminerAPI, StealthminerAPIError, StealthminerConnectionError
 from .const import (
     DOMAIN,
     DEFAULT_PORT,
@@ -30,8 +30,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class LuxOSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Exergy - LuxOS Miner."""
+class StealthminerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Exergy - Stealthminer."""
 
     VERSION = 1
 
@@ -53,7 +53,7 @@ class LuxOSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # Test connection
             session = async_get_clientsession(self.hass)
-            api = LuxOSAPI(
+            api = StealthminerAPI(
                 host=self._host,
                 port=self._port,
                 session=session,
@@ -62,16 +62,16 @@ class LuxOSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 version_info = await api.test_connection()
                 config_info = await api.get_config()
-                
+
                 self._miner_info = {
-                    "model": version_info.get("Type", "LuxOS Miner"),
+                    "model": version_info.get("Type", "Stealthminer"),
                     "hostname": config_info.get("Hostname", self._host),
                     "version": version_info.get("LUXminer", ""),
                 }
 
-            except LuxOSConnectionError:
+            except StealthminerConnectionError:
                 errors["base"] = "cannot_connect"
-            except LuxOSAPIError:
+            except StealthminerAPIError:
                 errors["base"] = "api_error"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
@@ -103,13 +103,13 @@ class LuxOSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> LuxOSOptionsFlowHandler:
+    ) -> StealthminerOptionsFlowHandler:
         """Get the options flow for this handler."""
-        return LuxOSOptionsFlowHandler(config_entry)
+        return StealthminerOptionsFlowHandler(config_entry)
 
 
-class LuxOSOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle LuxOS options."""
+class StealthminerOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle Stealthminer options."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""

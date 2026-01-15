@@ -1,4 +1,4 @@
-"""Sensor platform for Exergy - LuxOS Miner."""
+"""Sensor platform for Exergy - Stealthminer."""
 from __future__ import annotations
 
 import logging
@@ -7,7 +7,6 @@ from typing import Any
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -24,7 +23,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, UNIT_TERAHASH, UNIT_WATTS_PER_TERAHASH, UNIT_RPM
-from .coordinator import LuxOSDataUpdateCoordinator
+from .coordinator import StealthminerDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,14 +79,14 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up LuxOS sensors from a config entry."""
-    coordinator: LuxOSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Stealthminer sensors from a config entry."""
+    coordinator: StealthminerDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
     for sensor_type in SENSOR_TYPES:
         key, name, unit, device_class, state_class, icon, value_path, value_fn, entity_category, enabled_default = sensor_type
         entities.append(
-            LuxOSSensor(
+            StealthminerSensor(
                 coordinator=coordinator,
                 key=key,
                 name=name,
@@ -105,14 +104,14 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class LuxOSSensor(CoordinatorEntity[LuxOSDataUpdateCoordinator], SensorEntity):
-    """Representation of a LuxOS sensor."""
+class StealthminerSensor(CoordinatorEntity[StealthminerDataUpdateCoordinator], SensorEntity):
+    """Representation of a Stealthminer sensor."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: LuxOSDataUpdateCoordinator,
+        coordinator: StealthminerDataUpdateCoordinator,
         key: str,
         name: str,
         unit: str | None,
@@ -129,7 +128,7 @@ class LuxOSSensor(CoordinatorEntity[LuxOSDataUpdateCoordinator], SensorEntity):
         self._key = key
         self._value_path = value_path
         self._value_fn = value_fn
-        
+
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
@@ -153,11 +152,11 @@ class LuxOSSensor(CoordinatorEntity[LuxOSDataUpdateCoordinator], SensorEntity):
         # Handle path-based values
         if self._value_path:
             value = self._get_path_value(self._value_path)
-            
+
             # Convert hashrate from GH/s to TH/s
             if self._key.startswith("hashrate_") and value is not None:
                 return round(value / 1000, 2)
-            
+
             return value
 
         return None

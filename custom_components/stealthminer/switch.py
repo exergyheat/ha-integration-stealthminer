@@ -1,4 +1,4 @@
-"""Switch platform for LuxOS Miner."""
+"""Switch platform for Stealthminer."""
 from __future__ import annotations
 
 import logging
@@ -10,9 +10,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import LuxOSAPIError
+from .api import StealthminerAPIError
 from .const import DOMAIN
-from .coordinator import LuxOSDataUpdateCoordinator
+from .coordinator import StealthminerDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,25 +22,25 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up LuxOS switches from a config entry."""
-    coordinator: LuxOSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Stealthminer switches from a config entry."""
+    coordinator: StealthminerDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
-        LuxOSATMSwitch(coordinator),
-        LuxOSCurtailSwitch(coordinator),
+        StealthminerATMSwitch(coordinator),
+        StealthminerCurtailSwitch(coordinator),
     ]
 
     async_add_entities(entities)
 
 
-class LuxOSATMSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEntity):
+class StealthminerATMSwitch(CoordinatorEntity[StealthminerDataUpdateCoordinator], SwitchEntity):
     """Switch to control ATM (Auto-Tuning Mode)."""
 
     _attr_has_entity_name = True
     _attr_name = "ATM"
     _attr_icon = "mdi:auto-fix"
 
-    def __init__(self, coordinator: LuxOSDataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: StealthminerDataUpdateCoordinator) -> None:
         """Initialize the switch."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.api.host}_{coordinator.api.port}_atm_switch"
@@ -60,7 +60,7 @@ class LuxOSATMSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEntity
         try:
             await self.coordinator.api.set_atm(True)
             await self.coordinator.async_request_refresh()
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.error("Error enabling ATM: %s", err)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
@@ -68,7 +68,7 @@ class LuxOSATMSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEntity
         try:
             await self.coordinator.api.set_atm(False)
             await self.coordinator.async_request_refresh()
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.error("Error disabling ATM: %s", err)
 
     @property
@@ -81,7 +81,7 @@ class LuxOSATMSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEntity
         )
 
 
-class LuxOSCurtailSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEntity):
+class StealthminerCurtailSwitch(CoordinatorEntity[StealthminerDataUpdateCoordinator], SwitchEntity):
     """Switch to control miner curtailment (sleep mode)."""
 
     _attr_has_entity_name = True
@@ -89,7 +89,7 @@ class LuxOSCurtailSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEn
     _attr_icon = "mdi:sleep"
     _attr_device_class = SwitchDeviceClass.SWITCH
 
-    def __init__(self, coordinator: LuxOSDataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: StealthminerDataUpdateCoordinator) -> None:
         """Initialize the switch."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.api.host}_{coordinator.api.port}_curtail_switch"
@@ -111,7 +111,7 @@ class LuxOSCurtailSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEn
         try:
             await self.coordinator.api.curtail_sleep()
             await self.coordinator.async_request_refresh()
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.error("Error putting miner to sleep: %s", err)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
@@ -119,7 +119,7 @@ class LuxOSCurtailSwitch(CoordinatorEntity[LuxOSDataUpdateCoordinator], SwitchEn
         try:
             await self.coordinator.api.curtail_wakeup()
             await self.coordinator.async_request_refresh()
-        except LuxOSAPIError as err:
+        except StealthminerAPIError as err:
             _LOGGER.error("Error waking up miner: %s", err)
 
     @property

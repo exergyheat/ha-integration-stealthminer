@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to Exergy - LuxOS Miner",
-        "description": "Enter the IP address of your LuxOS miner.",
+        "title": "Connect to Stealthminer",
+        "description": "Enter the IP address of your miner running LuxOS.",
         "data": {
           "host": "Host",
           "port": "Port"
@@ -22,7 +22,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Exergy - LuxOS Miner Options",
+        "title": "Stealthminer Options",
         "data": {
           "scan_interval": "Update interval (seconds)"
         }
