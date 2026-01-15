@@ -1,0 +1,133 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Stealthminer",
+        "description": "Enter the IP address of your miner running LuxOS.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the miner. Please check the IP address and ensure the miner is online.",
+      "api_error": "API error occurred while communicating with the miner.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This miner is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Stealthminer Options",
+        "data": {
+          "scan_interval": "Update interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "hashrate_5s": {
+        "name": "Hashrate (5s)"
+      },
+      "hashrate_1m": {
+        "name": "Hashrate (1m)"
+      },
+      "hashrate_15m": {
+        "name": "Hashrate (15m)"
+      },
+      "hashrate_30m": {
+        "name": "Hashrate (30m)"
+      },
+      "hashrate_avg": {
+        "name": "Hashrate (Average)"
+      },
+      "power": {
+        "name": "Power"
+      },
+      "efficiency": {
+        "name": "Efficiency"
+      },
+      "accepted_shares": {
+        "name": "Accepted Shares"
+      },
+      "rejected_shares": {
+        "name": "Rejected Shares"
+      },
+      "stale_shares": {
+        "name": "Stale Shares"
+      },
+      "hardware_errors": {
+        "name": "Hardware Errors"
+      },
+      "uptime": {
+        "name": "Uptime"
+      },
+      "temp_board_max": {
+        "name": "Board Temperature"
+      },
+      "fan_speed_avg": {
+        "name": "Fan Speed"
+      },
+      "fan_rpm_avg": {
+        "name": "Fan RPM"
+      },
+      "current_profile": {
+        "name": "Current Profile"
+      },
+      "pool_url": {
+        "name": "Active Pool"
+      },
+      "system_status": {
+        "name": "System Status"
+      }
+    },
+    "binary_sensor": {
+      "miner_online": {
+        "name": "Miner Online"
+      },
+      "pool_connected": {
+        "name": "Pool Connected"
+      },
+      "atm_enabled": {
+        "name": "ATM Enabled"
+      },
+      "is_mining": {
+        "name": "Is Mining"
+      }
+    },
+    "switch": {
+      "atm": {
+        "name": "ATM"
+      },
+      "sleep_mode": {
+        "name": "Sleep Mode"
+      }
+    },
+    "button": {
+      "reboot": {
+        "name": "Reboot"
+      },
+      "reset_miner": {
+        "name": "Reset Miner"
+      },
+      "wake_up": {
+        "name": "Wake Up"
+      }
+    },
+    "select": {
+      "profile": {
+        "name": "Profile"
+      }
+    },
+    "number": {
+      "power_limit": {
+        "name": "Power Limit"
+      }
+    }
+  }
+}

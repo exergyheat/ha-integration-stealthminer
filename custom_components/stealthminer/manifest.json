@@ -1,0 +1,13 @@
+{
+  "domain": "stealthminer",
+  "name": "Exergy - Stealthminer",
+  "codeowners": ["@tronsington"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Tronsington/ha-integration-stealthminer",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Tronsington/ha-integration-stealthminer/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
